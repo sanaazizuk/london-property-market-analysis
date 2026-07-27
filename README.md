@@ -13,11 +13,7 @@
 
 ## Dashboard Preview
 
-![Dashboard preview, upper](images/dashboard_top.png)
-
-![Dashboard preview, lower](images/dashboard_bottom.png)
-
-[View the full dashboard image](images/dashboard_full.png)
+![Dashboard preview](images/dashboard_preview.gif)
 
 ---
 
@@ -320,8 +316,6 @@ Views were exported to CSV for the published dashboard, since Tableau Public doe
 
 ## The Dashboard
 
-![Dashboard, upper panels](images/dashboard_top.png)
-
 A single page dashboard built around one question, who gained over London's last decade, with every panel either answering that question or qualifying the answer.
 
 **KPI strip** Five headline figures across the top, London median price, year on year change, the twelve month forecast, the fastest growing borough at Havering, and the most affordable at Barking and Dagenham at £325,000.
@@ -345,6 +339,16 @@ A single page dashboard built around one question, who gained over London's last
 **Median price by property type** Flats at £421,000, terraced at £520,000, semi detached at £565,000, and detached at £835,000, a sensible and expected order that acts as a quiet confirmation the cleaning worked.
 
 **New build premium, flats only** The corrected version of the comparison described in Phase 3, at £400,000 against £501,500, with the flats only scope stated in the panel title and the reason given directly underneath rather than buried in a footnote.
+
+---
+
+### Full Dashboard
+
+![Dashboard, upper panels](images/dashboard_top.png)
+
+![Dashboard, middle panels](images/dashboard_middle.png)
+
+![Dashboard, lower panels](images/dashboard_bottom.png)
 
 ---
 
