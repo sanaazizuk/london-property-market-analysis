@@ -1,11 +1,11 @@
-# London House Price Trends and Forecast Dashboard
+# London House Prices, 2016 to 2026
 
 **Industry:** Property and Real Estate
 **Data period:** January 2016 to April 2026
 
-> A note on the data: every figure in this project comes from real, publicly released HM Land Registry Price Paid Data, covering just over one million individual residential sales across all 33 London boroughs over a ten year period. Nothing here is simulated, sampled, or estimated. Every number quoted in this README was checked directly against the underlying Python or SQL output before being written down, and the two findings most likely to be misread were deliberately tested a second time before being published.
+> A note on the data: every figure in this project comes from real, publicly released HM Land Registry Price Paid Data, covering 1,076,543 individual residential sales across all 33 London boroughs over a ten year period. Nothing here is simulated, sampled, or estimated. Every number quoted in this README was checked directly against the underlying Python or SQL output before being written down, and the findings most likely to be misread were deliberately tested a second time before being published.
 
-**Why this project is here:** most London property dashboards show that prices went up and stop there. This one worked with 1,076,543 real transactions and found a decade that splits cleanly in two. The cheapest outer boroughs grew by more than thirty per cent while four of the most expensive central boroughs lost value outright, with City of Westminster down 15.35 per cent. Along the way, two numbers that looked like clean, quotable findings turned out to be measurement artefacts rather than market behaviour, and both were caught before they reached the dashboard. The full pipeline runs Python through MySQL to an interactive Tableau dashboard, including a Mapbox powered borough map, a corrected ten year forecast, and a transaction volume series where every major spike is matched to a dated change in UK stamp duty policy.
+**Why this project is here:** most London property dashboards show that prices went up and stop there. This one worked through a decade of real transactions and found a market that split cleanly in two. The cheapest outer boroughs grew by more than thirty per cent while four of the most expensive central boroughs lost value outright, with City of Westminster down 15.35 per cent. Along the way, two numbers that looked like clean, quotable findings turned out to be measurement artefacts rather than market behaviour, and both were caught before they reached the dashboard. The full pipeline runs Python through MySQL to an interactive Tableau dashboard, including a Mapbox powered borough map, a corrected forecast, and a transaction volume series where every major spike is matched to a dated change in UK stamp duty policy.
 
 **[View the live, interactive dashboard on Tableau Public](https://public.tableau.com/app/profile/sana.aziz/viz/landregistery_london/LondonHousePrices20162026)**, no download or Tableau licence needed, opens directly in your browser.
 
@@ -13,13 +13,17 @@
 
 ## Dashboard Preview
 
-![Dashboard preview](images/dashboard_full.png)
+![Dashboard preview, upper](images/dashboard_top.png)
+
+![Dashboard preview, lower](images/dashboard_bottom.png)
+
+[View the full dashboard image](images/dashboard_full.png)
 
 ---
 
 ## TL;DR
 
-A single page Tableau dashboard analysing 1,076,543 real HM Land Registry residential sales across all 33 London boroughs and 124 months, built on a dataset cleaned in Python, aggregated through MySQL views using window functions, and finished as an interactive dashboard with a borough level map, a corrected forecast, and policy annotated transaction volume.
+A single page Tableau dashboard analysing 1,076,543 real HM Land Registry residential sales across all 33 London boroughs and 124 consecutive months, built on a dataset cleaned in Python, aggregated through MySQL views using window functions, and finished as an interactive dashboard with a borough level map, a corrected forecast, and policy annotated transaction volume.
 
 **Key findings:**
 
@@ -29,7 +33,7 @@ A single page Tableau dashboard analysing 1,076,543 real HM Land Registry reside
 - Monthly transaction volume shows three sharp spikes, each followed immediately by a collapse, and all three match dated UK stamp duty changes rather than random market noise
 - An apparent price crash in July 2021 turned out to be a low volume artefact of one of those stamp duty deadlines, not a real fall in prices, and was confirmed twice by two independent routes
 - The new build premium first measured at 8 per cent, which was arithmetically correct but answering the wrong question. Once property type mix was controlled for, the real premium is 25 per cent on a like for like comparison
-- Tableau's automatic forecast selected a model with no trend component at all and projected a flat line, contradicting ten years of visible upward movement. The model was corrected manually and the limitation stated on the dashboard rather than hidden
+- Tableau's automatic forecast selected a model with no trend component at all and projected a flat line, contradicting ten years of visible upward movement. The model was corrected manually and the remaining uncertainty stated on the dashboard rather than hidden
 
 ---
 
@@ -37,10 +41,14 @@ A single page Tableau dashboard analysing 1,076,543 real HM Land Registry reside
 
 | File | Description | Link |
 |---|---|---|
-| Python cleaning and analysis | Loads and merges 33 borough level Land Registry exports, handles outliers row by row rather than by blanket cutoff, investigates the July 2021 dip, and loads the result into MySQL | [london_house_prices_cleaned.ipynb](./london_house_prices_cleaned.ipynb) |
-| Cleaned dataset | The final cleaned output, also loaded into MySQL as `fact_house_prices`. Not committed in full due to file size, see the notebook to reproduce it | [Sample data](./data/sample_data.csv) |
-| SQL queries and views | All business question queries, three reusable views feeding the dashboard, and the follow up checks that tested each headline finding before it was trusted | [london_house_prices_analysis.sql](./sql/london_house_prices_analysis.sql) |
-| Tableau dashboard | Full .twbx file, open in Tableau Desktop or Tableau Public to explore | [london_house_prices_dashboard.twbx](./tableau/london_house_prices_dashboard.twbx) |
+| Raw data | Original, unmodified HM Land Registry borough exports | [Raw Data folder](./Raw%20Data) |
+| Python cleaning and analysis | Loads and merges the borough level exports, handles outliers row by row rather than by blanket cutoff, investigates the July 2021 dip, and loads the result into MySQL | [london_house_prices_cleaned.ipynb](./london_house_prices_cleaned.ipynb) |
+| Cleaned dataset | The final cleaned output, 1,076,543 rows, also loaded into MySQL as `fact_house_prices` | [london_house_prices_cleaned.csv](./london_house_prices_cleaned.csv) |
+| SQL queries and views | All business question queries, the three reusable views feeding the dashboard, and the follow up checks that tested each headline finding before it was trusted | [london_house_prices_analysis.sql](./london_house_prices_analysis.sql) |
+| View export, median price | `vw_median_price_by_borough_year` exported for Tableau Public | [vw_median_price_by_borough_year_sql.csv](./vw_median_price_by_borough_year_sql.csv) |
+| View export, year on year growth | `vw_yoy_growth_by_borough` exported for Tableau Public | [vw_yoy_growth_by_borough_sql.csv](./vw_yoy_growth_by_borough_sql.csv) |
+| View export, growth ranking | `vw_borough_growth_ranking` exported for Tableau Public | [vw_borough_growth_ranking_sql.csv](./vw_borough_growth_ranking_sql.csv) |
+| Tableau dashboard | Full .twbx file, open in Tableau Desktop or Tableau Public to explore | [landregistery_london.twbx](./landregistery_london.twbx) |
 
 ---
 
@@ -58,7 +66,7 @@ The part of this project I would most want to talk through in an interview, thou
 
 A data analysis project looking at residential property prices, growth, transaction volume, and forecast across all 33 London boroughs between January 2016 and April 2026. Built as a portfolio piece using real HM Land Registry open data, working through the full pipeline, raw data, Python cleaning, MySQL, SQL analysis, and an interactive Tableau dashboard.
 
-The project covers **1,076,543 individual property transactions** across **33 boroughs**, **four property types**, and **124 consecutive months**.
+The project covers **1,076,543 individual property transactions** across **33 boroughs**, **four residential property types**, and **124 consecutive months**.
 
 The core question is who actually gained over London's last decade, and whether the market moves as one thing or as several. The honest answer is that London has not had one housing market over this period, it has had at least two moving in opposite directions, and the boroughs people assume are the strongest performers are among the weakest.
 
@@ -68,14 +76,14 @@ The core question is who actually gained over London's last decade, and whether 
 
 #### Datasets
 
-- Source data is HM Land Registry Price Paid Data, downloaded per borough from the Land Registry open data portal
-- The cleaned, merged dataset is produced by the Python notebook below and loaded directly into MySQL as `fact_house_prices`
-- The full cleaned CSV is 86MB and is not committed to this repository. A 1,000 row sample sits in the `data` folder, and the notebook reproduces the full file end to end
+- Raw datasets can be found in the `Raw Data` folder
+- The cleaned, merged dataset, `london_house_prices_cleaned.csv`, is produced by the Python notebook below and loaded directly into MySQL as `fact_house_prices`
+- The three SQL view exports sitting alongside it are what the published Tableau Public dashboard actually connects to, since Tableau Public does not support live database connections
 
 #### Data Cleaning and Analysis
 
 - The full Python cleaning, outlier handling, and exploratory work is in [london_house_prices_cleaned.ipynb](./london_house_prices_cleaned.ipynb)
-- The SQL queries, three reusable views, and the follow up checks are in [london_house_prices_analysis.sql](./sql/london_house_prices_analysis.sql)
+- The SQL queries, three reusable views, and the follow up checks are in [london_house_prices_analysis.sql](./london_house_prices_analysis.sql)
 - The finished Tableau dashboard can be found in this repository as a .twbx file
 
 ---
@@ -104,7 +112,7 @@ Source data was taken directly from HM Land Registry's Price Paid Data, which re
 - **Time range:** January 2016 to April 2026, 124 consecutive months
 - **Collection method:** each borough was downloaded as a separate CSV export from the Land Registry open data portal, then combined into one notebook for cleaning and merging
 
-This produced 33 raw borough level CSV files, each a genuine, unmodified government export covering every registered residential sale in that borough over the period.
+This produced a set of raw borough level CSV files, sitting in the `Raw Data` folder in this repository, each a genuine, unmodified government export covering every registered residential sale in that borough over the period.
 
 ---
 
@@ -114,15 +122,11 @@ This produced 33 raw borough level CSV files, each a genuine, unmodified governm
 
 Before any analysis, the raw exports needed real cleaning. The Land Registry files ship with column names that do not travel well, four columns that were not needed for this analysis, dates stored as plain text rather than as dates, and a long tail of transactions at both price extremes that are legally property sales but are not market prices.
 
-**Loading and standardising all 33 borough files**
-
-![py01 screenshot](images/py_01_load_and_rename.png)
+**Loading and standardising every borough file**
 
 `glob` was used to collect every borough export automatically rather than repeating the same steps 33 times by hand. Within the loop, `deed_date`, `district`, and `price_paid` were renamed to `sale_date`, `borough`, and `price`, four unused columns were dropped, and `sale_date` was converted from text to a proper datetime. The approach was tested on a single file first before being run against the full set.
 
 **Handling the high end outliers row by row rather than by cutoff**
-
-![py02 screenshot](images/py_02_high_outliers.png)
 
 The obvious move here would have been a blanket price cap, and it would have been wrong. Inspecting the top 15 sales individually showed that the values between £60 million and £160 million, sitting almost entirely in Westminster and Kensington and Chelsea, are genuine. London's super prime market really does transact at that level, and capping the data would have silently deleted the most expensive real sales in the country.
 
@@ -132,15 +136,11 @@ Non residential sales, recorded under property type `O` for Other, were removed 
 
 **Handling the low end outliers**
 
-![py03 screenshot](images/py_03_low_outliers.png)
-
 The bottom end needed the opposite treatment. Unlike the high end, there was no ambiguity to inspect. Sales recorded at £1, £100, and anything below £10,000 are not market transactions, they are family transfers, company restructuring, and lease assignments. There is no realistic scenario in which a real semi detached house in London changes hands for £600, even in the cheapest borough, so a straightforward cutoff at £10,000 was the correct tool here where a row by row inspection was correct above.
 
 Cleaning removed just under six per cent of raw rows in total.
 
 **Investigating an apparent price crash in July 2021**
-
-![py04 screenshot](images/py_04_july_2021_dip.png)
 
 Plotting the London wide monthly median revealed a sharp dip around July 2021, well below the months either side. It would have been easy to leave that in as a pandemic era market wobble and move on. Instead, the transaction count for that specific month was checked rather than only the price.
 
@@ -150,17 +150,15 @@ This mattered directly for the forecast, since leaving an artificial trough in t
 
 **Loading into MySQL**
 
-![py05 screenshot](images/py_05_mysql_load.png)
-
 The cleaned dataframe was loaded into a local MySQL database using `pandas.to_sql()` with `sqlalchemy` and `pymysql`, chunked to handle the volume. Row count in MySQL matched the cleaned CSV exactly.
 
-Final cleaned dataset: **1,076,543 rows**, covering 124 months, 33 boroughs, and four residential property types, loaded into MySQL as the `fact_house_prices` table.
+Final cleaned dataset: **1,076,543 rows**, covering 124 months, 33 boroughs, and four residential property types, exported as `london_house_prices_cleaned.csv` and loaded into MySQL as the `fact_house_prices` table.
 
 ---
 
 ### Phase 3: Analysis (SQL)
 
-**Queries:** [london_house_prices_analysis.sql](./sql/london_house_prices_analysis.sql)
+**Queries:** [london_house_prices_analysis.sql](./london_house_prices_analysis.sql)
 
 Each query below was written to answer a specific business question, and every result was cross checked against the Tableau dashboard before being finalised.
 
@@ -185,11 +183,9 @@ GROUP BY borough, sale_year
 ORDER BY borough, sale_year;
 ```
 
-![sql01 screenshot](images/sql_01_median_by_borough_year.png)
-
 ---
 
-**Business question: are the missing years in that result a real data gap or a problem with my own query?**
+**Business question: are the missing years in that result a real data gap, or a problem with my own query?**
 
 The first version of the median query used a tighter window, between 0.49 and 0.51. The output looked correct at a glance, but Barking and Dagenham was missing 2017, 2020, and 2024 entirely, jumping straight from 2016 to 2018. A dataset with genuinely missing years would change several conclusions, so this needed answering before anything was built on top of it.
 
@@ -204,9 +200,29 @@ GROUP BY borough, sale_year
 ORDER BY sale_year;
 ```
 
-![sql02 screenshot](images/sql_02_barking_year_check.png)
+Every year was present in the source data with a healthy transaction count. The gap was not in the data, it was in the query. The 0.49 to 0.51 percentile window was simply too narrow to capture any row for certain borough year combinations. Widening it to 0.48 to 0.52 resolved it.
 
-Every year was present in the source data with a healthy transaction count. The gap was not in the data, it was in the query. The 0.49 to 0.51 percentile window was simply too narrow to capture any row for certain borough year combinations. Widening it to 0.48 to 0.52 resolved it. This is a good example of why an unexpected result is worth chasing rather than working around, since the instinct in the moment is to assume the data is incomplete.
+This is a good example of why an unexpected result is worth chasing rather than working around, since the instinct in the moment is to assume the source data is incomplete.
+
+---
+
+**Business question: how did each borough's median price change year on year?**
+
+```sql
+CREATE VIEW vw_yoy_growth_by_borough AS
+SELECT
+    borough,
+    sale_year,
+    median_price,
+    LAG(median_price) OVER (PARTITION BY borough ORDER BY sale_year) AS prev_year_price,
+    ROUND(
+        (median_price - LAG(median_price) OVER (PARTITION BY borough ORDER BY sale_year))
+        / LAG(median_price) OVER (PARTITION BY borough ORDER BY sale_year) * 100
+    , 2) AS yoy_growth_pct
+FROM vw_median_price_by_borough_year;
+```
+
+This uses `LAG()` partitioned by borough to compare each borough against its own previous year rather than needing a manual self join. The results show that price movement is not steady even within a single borough. Barking and Dagenham, for example, recorded a 10.69 per cent jump in 2022 followed by a 3.33 per cent dip in 2024, meaning short term volatility exists inside what is a clear long term upward trend.
 
 ---
 
@@ -230,8 +246,6 @@ FROM (
 ) AS yearly;
 ```
 
-![sql03 screenshot](images/sql_03_growth_ranking.png)
-
 Outer London dominates the top of the ranking. Havering leads at 35.88 per cent, followed by Bexley at 31.35 per cent, Sutton at 31.30 per cent, and Barking and Dagenham at 31.20 per cent, all four of them among the cheapest boroughs in the city at the start of the period.
 
 At the other end, four boroughs recorded genuine decline rather than slower growth. City of Westminster fell 15.35 per cent, Kensington and Chelsea 8.27 per cent, City of London 4.82 per cent, and Hammersmith and Fulham 4.68 per cent.
@@ -240,11 +254,9 @@ At the other end, four boroughs recorded genuine decline rather than slower grow
 
 **Business question: is that decline real, or is it an artefact of using a partial year as the endpoint?**
 
-The first version of this ranking used 2026 as the closing year, and produced apparent declines in City of London and Hammersmith and Fulham. Since the dataset ends in April 2026, that year covers roughly one quarter of normal transaction volume, and a partial year is not comparable to a full one. Rebuilding the ranking against 2025 as the final complete year was the correct fix.
+The first version of this ranking used 2026 as the closing year and produced apparent declines in City of London and Hammersmith and Fulham. Since the dataset ends in April 2026, that year covers roughly one quarter of normal transaction volume, and a partial year is not comparable to a full one. Rebuilding the ranking against 2025 as the final complete year was the correct fix.
 
-![sql04 screenshot](images/sql_04_partial_year_check.png)
-
-The distinction matters. City of London's apparent decline was partly a partial year distortion, and shrank once recalculated. The four declines listed above survived the recalculation intact, which is what makes them worth reporting. They are consistent with known pressures on prime central London over this period, including higher stamp duty rates at the top of the market, reduced international buyer activity, and a broad shift in demand toward outer boroughs.
+The distinction matters. City of London's apparent decline was partly a partial year distortion and changed once recalculated. The four declines listed above survived the recalculation intact, which is what makes them worth reporting. They are consistent with known pressures on prime central London over this period, including higher stamp duty rates at the top of the market, reduced international buyer activity, and a broad shift in demand toward outer boroughs.
 
 ---
 
@@ -264,19 +276,15 @@ GROUP BY property_type, new_build
 ORDER BY property_type, new_build;
 ```
 
-![sql05 screenshot](images/sql_05_new_build_by_type.png)
-
 Comparing all new builds against all existing stock produced a premium of only 8 per cent, which is well below what is usually reported for the London new build market. Breaking the comparison down by property type explained why. In 2025, 4,301 of 4,393 new build sales were flats, roughly 98 per cent, while existing stock is a mix that includes terraces, semis, and detached houses. Flats are the cheapest property type in the dataset at a £421,000 median against £835,000 for detached.
 
-The all types comparison was therefore measuring the difference in what gets built versus what already exists, not the difference in price between comparable homes. Comparing like with like, new build flats against existing flats, the premium is 25 per cent on medians across the full period.
+The all types comparison was therefore measuring the difference between what gets built and what already exists, not the difference in price between comparable homes. Comparing like with like, new build flats against existing flats, the premium is 25 per cent on medians across the full period.
 
 This is a mix effect, and the original 8 per cent figure was arithmetically correct while answering the wrong question. The dashboard panel was relabelled to make the flats only scope explicit rather than quietly filtered, so a reader can see exactly what is being compared.
 
 ---
 
 **Business question: why does transaction volume spike and collapse three times over the decade?**
-
-![sql06 screenshot](images/sql_06_transaction_volume.png)
 
 Monthly transaction volume across the ten year period shows three sharp spikes, each immediately followed by an equally sharp drop the following month. Rather than treating these as unexplained noise, each was investigated individually by checking the exact month and comparing it against known UK stamp duty policy changes.
 
@@ -294,15 +302,15 @@ All three spikes and drops match real, dateable UK stamp duty policy changes, co
 
 Three views were created so that Tableau connects to clean, pre aggregated tables rather than working directly against over a million raw transaction rows.
 
-| View | Purpose |
-|---|---|
-| `vw_median_price_by_borough_year` | Median price per borough per year, the base table everything else builds on |
-| `vw_yoy_growth_by_borough` | Year on year percentage change per borough, calculated with `LAG()` |
-| `vw_borough_growth_ranking` | Ten year growth percentage and rank for all 33 boroughs |
+| View | Purpose | Export |
+|---|---|---|
+| `vw_median_price_by_borough_year` | Median price per borough per year, the base table everything else builds on | [CSV](./vw_median_price_by_borough_year_sql.csv) |
+| `vw_yoy_growth_by_borough` | Year on year percentage change per borough, calculated with `LAG()` | [CSV](./vw_yoy_growth_by_borough_sql.csv) |
+| `vw_borough_growth_ranking` | Ten year growth percentage and rank for all 33 boroughs | [CSV](./vw_borough_growth_ranking_sql.csv) |
 
 Grid layout positions for the borough growth register panel were also calculated in SQL rather than in Tableau, using modulo and integer division on `growth_rank`, so the visual ordering stays tied to the underlying ranking and cannot drift out of sync with the bar chart beside it.
 
-Views were exported to CSV for the published dashboard, since Tableau Public does not support live database connections.
+Views were exported to CSV for the published dashboard, since Tableau Public does not support live database connections, unlike Tableau Desktop.
 
 ---
 
@@ -312,11 +320,11 @@ Views were exported to CSV for the published dashboard, since Tableau Public doe
 
 ## The Dashboard
 
-![Dashboard screenshot](images/dashboard_full.png)
+![Dashboard, upper panels](images/dashboard_top.png)
 
 A single page dashboard built around one question, who gained over London's last decade, with every panel either answering that question or qualifying the answer.
 
-**KPI strip** Five headline figures across the top, London median price at £480,000, year on year change, the twelve month forecast, the fastest growing borough at Havering, and the most affordable at Barking and Dagenham at £325,000.
+**KPI strip** Five headline figures across the top, London median price, year on year change, the twelve month forecast, the fastest growing borough at Havering, and the most affordable at Barking and Dagenham at £325,000.
 
 **Monthly transaction volume** The dashboard's hero panel, running full width, with all three stamp duty spikes annotated directly on the chart rather than explained in a caption elsewhere. A reader sees the pattern and the reason for it in the same glance.
 
@@ -324,15 +332,19 @@ A single page dashboard built around one question, who gained over London's last
 
 **Median house price trend and forecast** The London wide monthly median with a twenty month forecast and confidence band. The vertical axis deliberately does not start at zero, since starting at zero compresses a decade of movement into a nearly flat line and hides the pattern the panel exists to show.
 
+![Dashboard, lower panels](images/dashboard_bottom.png)
+
 **Ten year growth by borough** All 33 boroughs ranked, with the zero line visible so the four declining boroughs read as declines rather than as short bars. Showing the full 33 rather than a top ten was a deliberate choice, since the bottom of this chart is the more surprising half.
 
 **Median house price by borough** The price ranking, from Kensington and Chelsea at £1,225,000 down to Barking and Dagenham at £325,000, roughly a four times gap across a single city.
 
 **Borough growth register** A colour coded grid of all 33 boroughs ordered by growth rank, giving the same information as the bar chart in a form that can be read at a glance rather than row by row.
 
+**Borough detail** The same monthly trend and forecast structure as the London wide panel, filtered to a single borough.
+
 **Median price by property type** Flats at £421,000, terraced at £520,000, semi detached at £565,000, and detached at £835,000, a sensible and expected order that acts as a quiet confirmation the cleaning worked.
 
-**New build premium, flats only** The corrected version of the comparison described in Phase 3, scope stated in the panel title rather than buried, at £400,000 against £501,500.
+**New build premium, flats only** The corrected version of the comparison described in Phase 3, at £400,000 against £501,500, with the flats only scope stated in the panel title and the reason given directly underneath rather than buried in a footnote.
 
 ---
 
@@ -342,7 +354,7 @@ Tableau's automatic forecasting feature was applied to the London wide monthly m
 
 The automatic model selected simple exponential smoothing with no trend and no seasonal component. This produced a forecast that was almost completely flat, showing zero per cent trend contribution and an expected change of £0 across the entire forecast period. That did not match the real pattern in the historical data, where median prices had clearly risen over ten years despite month to month volatility. A default model was quietly contradicting a decade of visible movement.
 
-The model was adjusted manually using Tableau's custom forecast options, setting the trend component to additive while keeping the seasonal component as none, since no genuine twelve month seasonal pattern was detected in either version. The adjusted model produces a forecast that rises in line with the historical trend, projecting a change of approximately £9,654 in median price over the twenty month period, with the movement now correctly attributed to trend rather than ignored.
+The model was adjusted manually using Tableau's custom forecast options, setting the trend component to additive while keeping the seasonal component as none, since no genuine twelve month seasonal pattern was detected in either version. The adjusted model produces a forecast that rises in line with the historical trend, projecting a change of approximately £9,654 in median price over the twenty month period, with that movement now correctly attributed to trend rather than ignored.
 
 Both the naive and adjusted models rate Poor on Tableau's own quality metric. That is not a sign the adjustment failed. It reflects a real characteristic of the underlying data, where short term month to month volatility, including the low volume dip investigated earlier, is large relative to the size of the ten year trend. This makes any short term forecast inherently uncertain regardless of model choice.
 
@@ -360,6 +372,7 @@ The adjusted forecast is used, since it reflects the real, verified upward trend
 - Connecting a data pattern to real world policy, matching three transaction volume spikes to dated UK stamp duty changes, and confirming a price anomaly through two independent routes
 - Not trusting a default, identifying that Tableau's automatic forecast had selected a model with no trend component, correcting it, and reporting honestly that the corrected model still carries low confidence
 - SQL query writing across aggregation, subqueries, and window functions, including `PERCENT_RANK()` to construct a median in a database with no native median function, `LAG()` for year on year change, and `RANK()` for borough level ordering
+- Building reusable SQL views as a deliberate architecture choice, so the dashboard connects to clean pre aggregated tables rather than to over a million raw rows
 - Dashboard design discipline, including a non zero baseline where zero would flatten the trend, consistent naming and number formatting across every panel, and stating the scope of a filtered comparison in the panel title rather than hiding it
 
 ---
@@ -386,13 +399,13 @@ Finally, the forecast, which is included here partly because of what it revealed
 
 ## Recommendations
 
-Treat outer east and outer south east London as the growth story rather than the affordable alternative. Havering, Bexley, Sutton, and Barking and Dagenham delivered the strongest ten year returns in the city while remaining the cheapest entry points, which is a materially different proposition to the one usually presented about these areas.
+Treat outer east and outer south east London as the growth story rather than as the affordable alternative. Havering, Bexley, Sutton, and Barking and Dagenham delivered the strongest ten year returns in the city while remaining the cheapest entry points, which is a materially different proposition to the one usually presented about these areas.
 
 Look at prime central London as a separate market with separate drivers. Four central boroughs declined over a decade in which the rest of the city grew, and any citywide model that treats London as a single market will misprice both halves. The decline is consistent with tax and international demand pressures specific to the top of the market rather than with anything affecting London generally.
 
 Plan transaction timing around stamp duty deadlines rather than around market sentiment. Three separate policy changes produced the same spike and collapse pattern within a month either side of the deadline, and the effect is large enough to distort any monthly metric that crosses one of those dates. Any analysis of a month adjacent to a stamp duty change should check volume before drawing conclusions from price.
 
-Quote the new build premium with its scope attached. The all types figure of 8 per cent and the flats only figure of 25 per cent are both derived from the same data and only one of them answers the question people are actually asking. Any new build pricing decision using the lower figure would materially understate the market.
+Quote the new build premium with its scope attached. The all types figure of 8 per cent and the flats only figure of 25 per cent are both derived from the same data, and only one of them answers the question people are actually asking. Any new build pricing decision using the lower figure would materially understate the market.
 
 Present the forecast as direction rather than as a number. Given the volatility this dataset carries, a specific projected value implies more precision than the data supports, and the honest use of this forecast is to confirm the trend remains upward rather than to predict a price.
 
