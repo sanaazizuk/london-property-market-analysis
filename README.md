@@ -378,9 +378,9 @@ A single page dashboard built around one question, who gained over London's last
 
 ![Dashboard, upper panels](images/dashboard_top.png)
 
-![Dashboard, middle panels](images/dashboard_middle.png)
-
 ![Dashboard, lower panels](images/dashboard_bottom.png)
+
+[View the full dashboard as a single image](images/dashboard_full.png)
 
 ---
 
