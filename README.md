@@ -270,8 +270,6 @@ At the other end, four boroughs recorded genuine decline rather than slower grow
 
 The first version of this ranking used 2026 as the closing year and produced apparent declines in City of London and Hammersmith and Fulham. Since the dataset ends in April 2026, that year covers roughly one quarter of normal transaction volume, and a partial year is not comparable to a full one. Rebuilding the ranking against 2025 as the final complete year was the correct fix.
 
-![sql05 screenshot](images/sql_05_partial_year_check.png)
-
 The distinction matters. City of London's apparent decline was partly a partial year distortion and changed once recalculated. The four declines listed above survived the recalculation intact, which is what makes them worth reporting. They are consistent with known pressures on prime central London over this period, including higher stamp duty rates at the top of the market, reduced international buyer activity, and a broad shift in demand toward outer boroughs.
 
 ---
@@ -292,7 +290,7 @@ GROUP BY property_type, new_build
 ORDER BY property_type, new_build;
 ```
 
-![sql06 screenshot](images/sql_06_new_build_by_type.png)
+![sql05 screenshot](images/sql_05_new_build_by_type.png)
 
 Comparing all new builds against all existing stock produced a premium of only 8 per cent, which is well below what is usually reported for the London new build market. Breaking the comparison down by property type explained why. In 2025, 4,301 of 4,393 new build sales were flats, roughly 98 per cent, while existing stock is a mix that includes terraces, semis, and detached houses. Flats are the cheapest property type in the dataset at a £421,000 median against £835,000 for detached.
 
@@ -306,7 +304,19 @@ This is a mix effect, and the original 8 per cent figure was arithmetically corr
 
 Monthly transaction volume across the ten year period shows three sharp spikes, each immediately followed by an equally sharp drop the following month. Rather than treating these as unexplained noise, each was investigated individually by checking the exact month and comparing it against known UK stamp duty policy changes.
 
-![sql07 screenshot](images/sql_07_transaction_volume.png)
+```sql
+SELECT
+    DATE_FORMAT(sale_date, '%Y-%m') AS sale_month,
+    COUNT(*) AS num_sales
+FROM fact_house_prices
+GROUP BY sale_month
+ORDER BY num_sales DESC
+LIMIT 10;
+```
+
+![sql06 screenshot](images/sql_06_transaction_volume.png)
+
+Ranking every month in the dataset by transaction count puts March 2016, June 2021, and March 2025 at the top, which is the first sign that these are not random peaks. Each one was then checked against the policy calendar.
 
 March 2016 saw a spike to 20,528 sales, followed by a drop to 6,162 in April. This lines up with the introduction of the three per cent stamp duty surcharge on second homes and buy to let purchases, which came into effect on 1 April 2016, prompting buyers to rush completions before the deadline.
 
