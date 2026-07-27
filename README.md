@@ -122,9 +122,13 @@ Before any analysis, the raw exports needed real cleaning. The Land Registry fil
 
 `glob` was used to collect every borough export automatically rather than repeating the same steps 33 times by hand. Within the loop, `deed_date`, `district`, and `price_paid` were renamed to `sale_date`, `borough`, and `price`, four unused columns were dropped, and `sale_date` was converted from text to a proper datetime. The approach was tested on a single file first before being run against the full set.
 
+![py01 screenshot](images/py_01_load_and_rename.png)
+
 **Handling the high end outliers row by row rather than by cutoff**
 
 The obvious move here would have been a blanket price cap, and it would have been wrong. Inspecting the top 15 sales individually showed that the values between £60 million and £160 million, sitting almost entirely in Westminster and Kensington and Chelsea, are genuine. London's super prime market really does transact at that level, and capping the data would have silently deleted the most expensive real sales in the country.
+
+![py02 screenshot](images/py_02_high_outliers.png)
 
 One row did not belong. A £540,000,000 sale in Waltham Forest recorded as a terraced house. There is no terraced house in London worth half a billion pounds, and unlike the genuine super prime sales it would not have been caught by any sensible property type filter either. That single row was removed on its own, by value, rather than swept up in a general rule.
 
@@ -134,11 +138,15 @@ Non residential sales, recorded under property type `O` for Other, were removed 
 
 The bottom end needed the opposite treatment. Unlike the high end, there was no ambiguity to inspect. Sales recorded at £1, £100, and anything below £10,000 are not market transactions, they are family transfers, company restructuring, and lease assignments. There is no realistic scenario in which a real semi detached house in London changes hands for £600, even in the cheapest borough, so a straightforward cutoff at £10,000 was the correct tool here where a row by row inspection was correct above.
 
+![py03 screenshot](images/py_03_low_outliers.png)
+
 Cleaning removed just under six per cent of raw rows in total.
 
 **Investigating an apparent price crash in July 2021**
 
 Plotting the London wide monthly median revealed a sharp dip around July 2021, well below the months either side. It would have been easy to leave that in as a pandemic era market wobble and move on. Instead, the transaction count for that specific month was checked rather than only the price.
+
+![py04 screenshot](images/py_04_july_2021_dip.png)
 
 July 2021 recorded 3,959 sales against a dataset average of 8,612, and against a twenty fifth percentile of 7,327. In other words, that month was quieter than even the quietest normal months in the entire ten year period, sitting closer to the overall minimum. A median calculated from an unusually small and unrepresentative set of sales is not a reliable market signal, and this dip was therefore a low volume artefact rather than a genuine price fall.
 
@@ -147,6 +155,8 @@ This mattered directly for the forecast, since leaving an artificial trough in t
 **Loading into MySQL**
 
 The cleaned dataframe was loaded into a local MySQL database using `pandas.to_sql()` with `sqlalchemy` and `pymysql`, chunked to handle the volume. Row count in MySQL matched the cleaned CSV exactly.
+
+![py05 screenshot](images/py_05_mysql_load.png)
 
 Final cleaned dataset: **1,076,543 rows**, covering 124 months, 33 boroughs, and four residential property types, exported as `london_house_prices_cleaned.csv` and loaded into MySQL as the `fact_house_prices` table.
 
@@ -179,6 +189,8 @@ GROUP BY borough, sale_year
 ORDER BY borough, sale_year;
 ```
 
+![sql01 screenshot](images/sql_01_median_by_borough_year.png)
+
 ---
 
 **Business question: are the missing years in that result a real data gap, or a problem with my own query?**
@@ -195,6 +207,8 @@ WHERE borough = 'BARKING AND DAGENHAM'
 GROUP BY borough, sale_year
 ORDER BY sale_year;
 ```
+
+![sql02 screenshot](images/sql_02_barking_year_check.png)
 
 Every year was present in the source data with a healthy transaction count. The gap was not in the data, it was in the query. The 0.49 to 0.51 percentile window was simply too narrow to capture any row for certain borough year combinations. Widening it to 0.48 to 0.52 resolved it.
 
@@ -217,6 +231,8 @@ SELECT
     , 2) AS yoy_growth_pct
 FROM vw_median_price_by_borough_year;
 ```
+
+![sql03 screenshot](images/sql_03_yoy_growth.png)
 
 This uses `LAG()` partitioned by borough to compare each borough against its own previous year rather than needing a manual self join. The results show that price movement is not steady even within a single borough. Barking and Dagenham, for example, recorded a 10.69 per cent jump in 2022 followed by a 3.33 per cent dip in 2024, meaning short term volatility exists inside what is a clear long term upward trend.
 
@@ -242,6 +258,8 @@ FROM (
 ) AS yearly;
 ```
 
+![sql04 screenshot](images/sql_04_growth_ranking.png)
+
 Outer London dominates the top of the ranking. Havering leads at 35.88 per cent, followed by Bexley at 31.35 per cent, Sutton at 31.30 per cent, and Barking and Dagenham at 31.20 per cent, all four of them among the cheapest boroughs in the city at the start of the period.
 
 At the other end, four boroughs recorded genuine decline rather than slower growth. City of Westminster fell 15.35 per cent, Kensington and Chelsea 8.27 per cent, City of London 4.82 per cent, and Hammersmith and Fulham 4.68 per cent.
@@ -251,6 +269,8 @@ At the other end, four boroughs recorded genuine decline rather than slower grow
 **Business question: is that decline real, or is it an artefact of using a partial year as the endpoint?**
 
 The first version of this ranking used 2026 as the closing year and produced apparent declines in City of London and Hammersmith and Fulham. Since the dataset ends in April 2026, that year covers roughly one quarter of normal transaction volume, and a partial year is not comparable to a full one. Rebuilding the ranking against 2025 as the final complete year was the correct fix.
+
+![sql05 screenshot](images/sql_05_partial_year_check.png)
 
 The distinction matters. City of London's apparent decline was partly a partial year distortion and changed once recalculated. The four declines listed above survived the recalculation intact, which is what makes them worth reporting. They are consistent with known pressures on prime central London over this period, including higher stamp duty rates at the top of the market, reduced international buyer activity, and a broad shift in demand toward outer boroughs.
 
@@ -272,6 +292,8 @@ GROUP BY property_type, new_build
 ORDER BY property_type, new_build;
 ```
 
+![sql06 screenshot](images/sql_06_new_build_by_type.png)
+
 Comparing all new builds against all existing stock produced a premium of only 8 per cent, which is well below what is usually reported for the London new build market. Breaking the comparison down by property type explained why. In 2025, 4,301 of 4,393 new build sales were flats, roughly 98 per cent, while existing stock is a mix that includes terraces, semis, and detached houses. Flats are the cheapest property type in the dataset at a £421,000 median against £835,000 for detached.
 
 The all types comparison was therefore measuring the difference between what gets built and what already exists, not the difference in price between comparable homes. Comparing like with like, new build flats against existing flats, the premium is 25 per cent on medians across the full period.
@@ -283,6 +305,8 @@ This is a mix effect, and the original 8 per cent figure was arithmetically corr
 **Business question: why does transaction volume spike and collapse three times over the decade?**
 
 Monthly transaction volume across the ten year period shows three sharp spikes, each immediately followed by an equally sharp drop the following month. Rather than treating these as unexplained noise, each was investigated individually by checking the exact month and comparing it against known UK stamp duty policy changes.
+
+![sql07 screenshot](images/sql_07_transaction_volume.png)
 
 March 2016 saw a spike to 20,528 sales, followed by a drop to 6,162 in April. This lines up with the introduction of the three per cent stamp duty surcharge on second homes and buy to let purchases, which came into effect on 1 April 2016, prompting buyers to rush completions before the deadline.
 
@@ -325,8 +349,6 @@ A single page dashboard built around one question, who gained over London's last
 **London house prices by borough, map** A Mapbox powered borough map where circle size carries transaction volume and colour carries median price, showing the central to outer price gradient geographically rather than as a ranked list.
 
 **Median house price trend and forecast** The London wide monthly median with a twenty month forecast and confidence band. The vertical axis deliberately does not start at zero, since starting at zero compresses a decade of movement into a nearly flat line and hides the pattern the panel exists to show.
-
-![Dashboard, lower panels](images/dashboard_bottom.png)
 
 **Ten year growth by borough** All 33 boroughs ranked, with the zero line visible so the four declining boroughs read as declines rather than as short bars. Showing the full 33 rather than a top ten was a deliberate choice, since the bottom of this chart is the more surprising half.
 
