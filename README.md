@@ -39,11 +39,12 @@ A single page Tableau dashboard analysing 1,076,543 real HM Land Registry reside
 |---|---|---|
 | Raw data | Original, unmodified HM Land Registry borough exports | [Raw Data folder](./Raw%20Data) |
 | Python cleaning and analysis | Loads and merges the borough level exports, handles outliers row by row rather than by blanket cutoff, investigates the July 2021 dip, and loads the result into MySQL | [london_house_prices_cleaned.ipynb](./london_house_prices_cleaned.ipynb) |
-| Cleaned dataset | The final cleaned output, 1,076,543 rows, also loaded into MySQL as `fact_house_prices` | [london_house_prices_cleaned.csv](./london_house_prices_cleaned.csv) |
+| Cleaned dataset | The final cleaned output, 1,076,543 rows, also loaded into MySQL as `fact_house_prices`. Zipped for upload | [london_house_prices_cleaned.zip](./london_house_prices_cleaned.zip) |
 | SQL queries and views | All business question queries, the three reusable views feeding the dashboard, and the follow up checks that tested each headline finding before it was trusted | [london_house_prices_analysis.sql](./london_house_prices_analysis.sql) |
 | View export, median price | `vw_median_price_by_borough_year` exported for Tableau Public | [vw_median_price_by_borough_year_sql.csv](./vw_median_price_by_borough_year_sql.csv) |
 | View export, year on year growth | `vw_yoy_growth_by_borough` exported for Tableau Public | [vw_yoy_growth_by_borough_sql.csv](./vw_yoy_growth_by_borough_sql.csv) |
 | View export, growth ranking | `vw_borough_growth_ranking` exported for Tableau Public | [vw_borough_growth_ranking_sql.csv](./vw_borough_growth_ranking_sql.csv) |
+| Borough grid layout | Grid row and column positions for the borough growth register panel, calculated in SQL from `growth_rank` | [borough_grid_sql.csv](./borough_grid_sql.csv) |
 | Tableau dashboard | Full .twbx file, open in Tableau Desktop or Tableau Public to explore | [landregistery_london.twbx](./landregistery_london.twbx) |
 
 ---
@@ -73,7 +74,7 @@ The core question is who actually gained over London's last decade, and whether 
 #### Datasets
 
 - Raw datasets can be found in the `Raw Data` folder
-- The cleaned, merged dataset, `london_house_prices_cleaned.csv`, is produced by the Python notebook below and loaded directly into MySQL as `fact_house_prices`
+- The cleaned, merged dataset, `london_house_prices_cleaned.zip`, is produced by the Python notebook below and loaded directly into MySQL as `fact_house_prices`. It is zipped purely because the raw CSV exceeds GitHub's upload limit
 - The three SQL view exports sitting alongside it are what the published Tableau Public dashboard actually connects to, since Tableau Public does not support live database connections
 
 #### Data Cleaning and Analysis
@@ -158,7 +159,7 @@ The cleaned dataframe was loaded into a local MySQL database using `pandas.to_sq
 
 ![py05 screenshot](images/py_05_mysql_load.png)
 
-Final cleaned dataset: **1,076,543 rows**, covering 124 months, 33 boroughs, and four residential property types, exported as `london_house_prices_cleaned.csv` and loaded into MySQL as the `fact_house_prices` table.
+Final cleaned dataset: **1,076,543 rows**, covering 124 months, 33 boroughs, and four residential property types, exported as `london_house_prices_cleaned.csv`, zipped for this repository, and loaded into MySQL as the `fact_house_prices` table.
 
 ---
 
